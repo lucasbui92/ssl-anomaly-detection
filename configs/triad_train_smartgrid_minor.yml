@@ -1,0 +1,42 @@
+# Setup
+setup: triad
+
+# Model
+backbone: TSAD
+model_kwargs:
+  input_dims: 1         # channel count used by TSAD
+  output_dims: 32       # repr_dims
+  depth: 6
+
+# Dataset
+train_db_name: smartgrid_minor
+val_db_name: smartgrid_minor
+dataset_kwargs:
+  csv_path: ./dataset/smart_grid_minor.csv
+  key: smartgrid_minor
+  labels:
+    columns: "Fault Indicator"
+    combine: any
+  split:
+    train: 0.7
+    valid: 0.1
+  normalize: false      # set true to z-score using train stats
+  sort_timestamp_if_present: true  # if a "Timestamp" column exists, sort by it
+
+# Hyperparameters
+epochs: 20
+optimizer: adam         # optional placeholder for parity with CARLA
+optimizer_kwargs:
+  lr: 0.001
+  weight_decay: 0.0
+scheduler: none
+scheduler_kwargs: {}
+batch_size: 0           # TriAD uses sliding windows; keep for config parity
+num_workers: 0
+
+# TriAD-specific
+triad_kwargs:
+  cycles: 2.5           # window size multiplier relative to period
+  stride_ratio: 4       # stride = window_size // stride_ratio
+  alpha: 0.4
+  drop_first_tenth: true

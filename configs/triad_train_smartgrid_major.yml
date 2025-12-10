@@ -1,0 +1,55 @@
+# Setup
+setup: triad
+
+# Model
+backbone: TSAD
+model_kwargs:
+  input_dims: 1
+  output_dims: 32
+  depth: 6
+
+# Dataset
+train_db_name: smartgrid_major
+val_db_name: smartgrid_major
+dataset_kwargs:
+  csv_path: ./dataset/smart_grid_major.csv
+  key: smartgrid_major
+  labels:
+    columns: ["Overload Condition", "Transformer Fault"]
+  feature_columns:
+  - "Voltage (V)"
+  - "Current (A)"
+  - "Power Consumption (kW)"
+  - "Reactive Power (kVAR)"
+  - "Power Factor"
+  - "Solar Power (kW)"
+  - "Wind Power (kW)"
+  - "Grid Supply (kW)"
+  - "Voltage Fluctuation (%)"
+  - "Temperature"
+  - "Humidity (%)"
+  - "Electricity Price (USD/kWh)"
+  - "Predicted Load (kW)"
+  split:
+    train: 0.7
+    valid: 0.1
+  normalize: false
+  sort_timestamp_if_present: true
+
+# Hyperparameters
+epochs: 1
+optimizer: adam
+optimizer_kwargs:
+  lr: 0.001
+  weight_decay: 0.0
+scheduler: none
+scheduler_kwargs: {}
+batch_size: 10
+num_workers: 0
+
+# TriAD-specific
+triad_kwargs:
+  cycles: 2.5
+  stride_ratio: 4
+  alpha: 0.4
+  drop_first_tenth: true
