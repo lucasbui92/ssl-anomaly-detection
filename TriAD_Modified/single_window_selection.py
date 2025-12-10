@@ -1,4 +1,7 @@
-# This script outlines the method for selecting the most suspicious window after tri-domain detection by comparing it with training data. The single window will undergo padding for the final step: discord discovery (Merlin).
+# Adapted from: TriAD (https://github.com/pseudo-Skye/TriAD).
+# Modifications by Thuan Anh Bui, 2025.
+# Changes: fixed dimension errors,
+#          and enabled flexible input configs for testing
 
 import numpy as np
 import pandas as pd

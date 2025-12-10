@@ -1,3 +1,6 @@
+# Created by: Thuan Anh Bui (2025)
+# Description: Enabled displaying graphs and charts for results.
+
 import numpy as np
 import matplotlib.pyplot as plt
 

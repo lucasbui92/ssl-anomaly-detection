@@ -1,3 +1,7 @@
+# Adapted from: TriAD (https://github.com/pseudo-Skye/TriAD).
+# Modifications by Thuan Anh Bui, 2025.
+# Changes: added multivariate support
+
 import numpy as np
 from scipy import signal
 from sklearn.preprocessing import MinMaxScaler

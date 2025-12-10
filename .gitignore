@@ -1,5 +1,15 @@
-venv/
-.github/
+# Python cache and virtual environments
+**/__pycache__/
+**/.pytest_cache/
+**/venv/
+**/.venv/
+**/carla-env/
+
+# VSCode settings
 .vscode/
 
-__pycache__/
+# Large/unwanted build or runtime directories
+**/logs/
+**/checkpoints/
+**/outputs/
+**/runs/

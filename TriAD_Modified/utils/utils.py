@@ -1,3 +1,7 @@
+# Adapted from: TriAD (https://github.com/pseudo-Skye/TriAD).
+# Modifications by Thuan Anh Bui, 2025.
+# Changes: added multivariate support, fixed warning bugs when printing output
+
 import pickle
 import numpy as np
 import torch

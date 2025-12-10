@@ -1,3 +1,7 @@
+# Adapted from: TriAD (https://github.com/pseudo-Skye/TriAD).
+# Modifications by Thuan Anh Bui, 2025.
+# Changes: enabled label mode construction and feature checking
+
 import numpy as np
 import pandas as pd
 

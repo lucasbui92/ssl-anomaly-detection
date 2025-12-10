@@ -1,3 +1,6 @@
+# Created by: Thuan Anh Bui (2025)
+# Description: Implements automated feature selection pipeline.
+
 import os, sys, subprocess, yaml, csv
 
 import pandas as pd

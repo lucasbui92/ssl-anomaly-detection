@@ -1,3 +1,8 @@
+# Adapted from: TriAD (https://github.com/pseudo-Skye/TriAD).
+# Modifications by Thuan Anh Bui, 2025.
+# Changes: added multivariate support, updated window slicing,
+#          integrated new feature extractor and enabled flexible input configs for testing
+
 import numpy as np
 import os, time, datetime, yaml, argparse
 

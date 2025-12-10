@@ -1,3 +1,7 @@
+# Adapted from: TriAD (https://github.com/pseudo-Skye/TriAD).
+# Modifications by Thuan Anh Bui, 2025.
+# Changes: adjusted evaluation techniques and modified graph visualization
+
 import sys, os, yaml, argparse, csv
 sys.path.insert(0, '../')
 

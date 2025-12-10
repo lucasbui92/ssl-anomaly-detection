@@ -1,3 +1,6 @@
+# Created by: Thuan Anh Bui (2025)
+# Description: Enabled configs for feature selection run.
+
 # ID
 ID = "smartgrid_major"
 
