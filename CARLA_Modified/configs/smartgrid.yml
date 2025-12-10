@@ -1,0 +1,41 @@
+smart_grid_major:
+  label_mode: tfault_only   # any, both, overload_only, tfault_only
+  feature_columns:
+  # - "Voltage (V)"
+  # - "Current (A)"
+  # - "Power Consumption (kW)"
+  # - "Reactive Power (kVAR)"
+  # - "Power Factor"
+  # - "Solar Power (kW)"
+  # - "Wind Power (kW)"
+  # - "Grid Supply (kW)"
+  # - "Voltage Fluctuation (%)"
+  - "Temperature"
+  - "Humidity (%)"
+  - "Electricity Price (USD/kWh)"
+  # - "Predicted Load (kW)"
+  window:
+    size: 80
+    stride: 10
+  threshold:
+    mode: count   # fraction or count
+    value: 10      # % or count depending on mode
+
+# Augmentation
+augment:
+  gaussian:
+    p: 0.7
+    std: 0.02
+  jitter:
+    p: 0.5
+    std: 0.01
+  time_mask:
+    p: 0.5
+    max_mask_frac: 0.1
+  cropping:
+    p: 0.3
+    min_frac: 0.8
+  time_scaling:
+    p: 0.3
+    min: 0.9
+    max: 1.1
