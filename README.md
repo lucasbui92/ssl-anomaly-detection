@@ -1,12 +1,12 @@
 # Running Instructions for TriAD and CARLA (Modified Versions)
 
-This repository contains **modified implementations of the TriAD and CARLA models** used in the accompanying dissertation for smart-grid harmonic anomaly detection.
+This repository contains **modified implementations of the TriAD and CARLA models** used in the accompanying dissertation for smart-grid harmonic anomaly detection. Detailed, pipeline-specific instructions for running **TriAD** and **CARLA** should be followed as described in their respective sections.
 
 ---
 
 ## Acknowledgement
 
-This repository is based on the original **TriAD** and **CARLA** codebases, both of which are cited in the accompanying dissertation. The implementations provided here have been **modified and extended** for smart-grid harmonic anomaly detection experiments.
+The implementations provided here using the original **TriAD** and **CARLA** codebases have been **modified and extended** for smart-grid harmonic anomaly detection experiments.
 
 ---
 
@@ -25,8 +25,6 @@ This repository is based on the original **TriAD** and **CARLA** codebases, both
 > * Missing or incompatible dependencies may lead to execution failures.
 
 ---
-
-Detailed, pipeline-specific instructions for running **TriAD** and **CARLA** should be followed as described in their respective sections or accompanying documentation.
 
 # Running CARLA (Modified Version)
 
@@ -62,8 +60,6 @@ Activate the environment:
   ```bash
   carla-env\Scripts\activate
   ```
-
-> ⚠️ Ensure all required libraries and frameworks are installed inside this environment before proceeding.
 
 ---
 
@@ -109,7 +105,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 return BASE_DIR / "datasets" / "SmartGrid"
 ```
 
-This ensures correct dataset resolution for the smart-grid experiments.
+This ensures correct dataset path for the smart-grid experiments.
 
 ---
 
@@ -179,21 +175,9 @@ configs/smartgrid.yml
 You may modify:
 
 * `label_mode`
-* `feature_columns`
-* Sliding window parameters:
-
-  ```yaml
-  window:
-    size: 80
-    stride: 10
-  ```
-* Thresholding behavior:
-
-  ```yaml
-  threshold:
-    mode: count   # fraction or count
-    value: 10     # percentage or count depending on mode
-  ```
+* `feature_columns`: Comment out features you do not need for training
+* Sliding window parameters: `size` and `stride`
+* Thresholding behavior: `mode` and `value`
 
 ---
 
@@ -265,8 +249,6 @@ Activate the environment:
   venv\Scripts\activate
   ```
 
-> ⚠️ Ensure all required dependencies are installed inside this environment before proceeding.
-
 ---
 
 ## Pre-run Preparation
@@ -279,7 +261,7 @@ Navigate to:
 merlin_res/all_metrics.csv
 ```
 
-* Delete **all rows starting with**:
+* Delete **all rows** starting with:
 
   ```
   any,Voltage
@@ -374,7 +356,7 @@ configs/grid_settings.py
 **Parameter descriptions:**
 
 * **`LABEL`**: Specifies the label mode being targeted.
-* **`TARGET`**: Defines the *maximum number of features* that the feature selection pipeline is allowed to consider.
+* **`TARGET`**: Defines the *maximum number of features* allowed to be combined in a single set.
 * **`MULTIVARIATE`**:
 
   * `False` → Univariate setting (single signal/channel)
