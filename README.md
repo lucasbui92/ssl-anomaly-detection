@@ -26,7 +26,7 @@ The implementations provided here using the original **TriAD** and **CARLA** cod
 
 ---
 
-# Running CARLA (Modified Version)
+# 1. Running CARLA (Modified Version)
 
 ## Environment Setup
 
@@ -211,7 +211,7 @@ Changes to these files take effect only after re-running the pipeline.
 
 ---
 
-# Running TriAD (Modified Version)
+# 2. Running TriAD (Modified Version)
 
 ## 1. Navigate to the TriAD Directory
 
