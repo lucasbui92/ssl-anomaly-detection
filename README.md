@@ -1,377 +1,107 @@
-# Running Instructions for TriAD and CARLA (Modified Versions)
+# Self-Supervised Anomaly Detection for Harmonics-Rich Smart-Grid Time Series  
+**CARLA vs. TriAD: A Design-Centric Comparative Study**
 
-This repository contains **modified implementations of the TriAD and CARLA models** used in the accompanying dissertation for smart-grid harmonic anomaly detection. Detailed, pipeline-specific instructions for running **TriAD** and **CARLA** should be followed as described in their respective sections.
+> **NOTE**  
+> Model-specific setup and execution instructions are provided in the `README.md` file within each model directory (`CARLA_Modified/`, `TriAD_Modified/`).
 
----
+## Overview & Methodology
 
-## Acknowledgement
+This repository studies how **feature composition, temporal windowing, and label formulation** influence the behaviour of **self-supervised learning (SSL)** models for anomaly detection in **harmonics-rich smart-grid time-series data**.
 
-The implementations provided here using the original **TriAD** and **CARLA** codebases have been **modified and extended** for smart-grid harmonic anomaly detection experiments.
+Two contrastive SSL frameworks are evaluated under a unified experimental design:
 
----
+- **CARLA** — a feature-agnostic baseline driven primarily by temporal structure and neighborhood consistency in embedding space.
+- **TriAD** — a feature-sensitive, multi-domain SSL model that detects anomalies through inconsistencies across temporal, frequency, and residual representations.
 
-## Environment, Dependencies, and GPU Requirement
-
-> ⚠️ **Important – Read Before Running**
->
-> * Both **TriAD and CARLA utilize GPU acceleration via CUDA by default**.
-> * Users must ensure that a **CUDA-compatible GPU**, appropriate **GPU drivers**, and a **CUDA-enabled deep learning framework** (e.g., PyTorch with CUDA support) are correctly installed.
-> * Failure to configure CUDA properly may result in runtime errors or crashes.
->
-> **Dependency Notice**
->
-> * All experiments should be executed inside a **Python virtual environment**.
-> * Users are responsible for installing all required **Python libraries, frameworks, and system dependencies**.
-> * Missing or incompatible dependencies may lead to execution failures.
+Rather than proposing a new detector, this work focuses on **methodological analysis**: identifying *when* SSL models are invariant to feature semantics and *when* representation and feature design materially affect anomaly detection performance.
 
 ---
 
-# 1. Running CARLA (Modified Version)
+## CARLA: Design and Experimental Role
 
-## Environment Setup
+CARLA is implemented as a **contrastive SSL baseline** to assess feature sensitivity in heterogeneous smart-grid data. Since CARLA has **no built-in feature selection mechanism**, it provides a controlled reference for isolating the influence of temporal structure.
 
-### 1. Navigate to the CARLA Directory
+Key design adaptations include:
 
-At the terminal, change into the `CARLA_Modified` folder:
+- **Dynamic feature subset support**, relaxing the original fixed-dimensional input assumption.
+- **Training-only z-score normalization** on normal samples.
+- **Strict chronological splitting** to prevent temporal leakage.
 
-```bash
-cd CARLA_Modified
-```
+CARLA operates on **fixed-length sliding windows**, each assigned a **single binary anomaly label** derived from underlying point-level annotations. Multiple window-level labeling modes (e.g., count-based, fraction-based, baseline) are used to test robustness under varying anomaly distributions.
 
----
-
-### 2. Create and Activate Virtual Environment
-
-Create a Python virtual environment named `carla-env`:
-
-```bash
-python -m venv carla-env
-```
-
-Activate the environment:
-
-* **Linux / macOS:**
-
-  ```bash
-  source carla-env/bin/activate
-  ```
-* **Windows:**
-
-  ```bash
-  carla-env\Scripts\activate
-  ```
+CARLA’s role in this repository is **analytical**, not final optimisation.
 
 ---
 
-## Pre-run Checks and Setup
+## TriAD: Feature Engineering and Representation Design
 
-### 3. Check Results Folder
+TriAD is evaluated under both **univariate** and **multivariate** formulations to examine the role of feature interaction in anomaly detection.
 
-Navigate to the `results` folder:
+For each window, TriAD constructs three complementary views:
 
-* If the folder is **empty**, no action is required.
-* If the folder contains any **nested subfolders**, delete them **before running** the pipeline.
+- **Temporal** — raw time-domain signal  
+- **Frequency** — FFT-based harmonic representation  
+- **Residual** — deviation from detrended and de-seasonalised baseline  
 
-This ensures that stale outputs do not interfere with new experiment results.
-
----
-
-### 4. Update Dataset Path Configuration
-
-Open the following file:
-
-```
-utils/mypath.py
-```
-
-#### (a) Add import at the top of the file
-
-```python
-from pathlib import Path
-```
-
-#### (b) Update the Smart Grid dataset path
-
-Locate the conditional block:
-
-```python
-elif database == 'smart_grid':
-```
-
-Modify it to include the following:
-
-```python
-BASE_DIR = Path(__file__).resolve().parent.parent
-return BASE_DIR / "datasets" / "SmartGrid"
-```
-
-This ensures correct dataset path for the smart-grid experiments.
+Augmentations are applied **consistently across channels**, preserving inter-feature relationships. This design enables TriAD to detect anomalies arising from **cross-channel or cross-domain inconsistency**, which are common in industrial systems.
 
 ---
 
-## Running the CARLA Pipeline
+## Feature Selection via SFFS (TriAD Only)
 
-> ⚠️ **Important**: The following commands **must be executed in order**.
+Because TriAD is sensitive to feature composition, **Sequential Floating Forward Selection (SFFS)** is used to identify compact and informative feature subsets:
 
-### 5. Run Pretext Training
+1. Start from an empty feature set  
+2. Iteratively add features that improve validation performance  
+3. Conditionally remove redundant features  
+4. Repeat until convergence  
 
-Execute the pretext task:
-
-```bash
-py carla_pretext.py \
-  --config_env configs/env.yml \
-  --config_exp configs/pretext/carla_pretext_smartgrid_major.yml \
-  --fname smart_grid_major
-```
-
-Wait for the process to complete before proceeding.
+Selected features define the **input channels to TriAD**. Feature selection is **model-specific** and optimised using F1-score, reflecting the trade-off between missed anomalies and false alarms.
 
 ---
 
-### 6. Run Classification
+## Pointwise Anomaly Scoring (TriAD)
 
-After pretext training finishes, execute:
+TriAD extends beyond window-level detection through a **multi-stage pointwise scoring pipeline**:
 
-```bash
-py carla_classification.py \
-  --config_env configs/env.yml \
-  --config_exp configs/classification/carla_classification_smartgrid_major.yml \
-  --fname smart_grid_major
-```
+1. Identify domain-specific suspect windows (temporal, frequency, residual)
+2. Select a **deep inspection window** with strongest anomaly evidence
+3. Detect anomalous subsequences using a discord discovery algorithm
+4. Produce final anomaly location and score for evaluation
 
-Wait for the run to finish completely.
-
-> ⚠️ These two commands **must be executed sequentially**. Running classification without completing pretext training will result in errors.
+This design supports both **detection and localisation**, rather than coarse window-level flags.
 
 ---
 
-## Evaluation and Re-running
+## Experimental Design Summary
 
-* After the **classification run**, scroll up in the terminal output to view the **evaluation results**.
+- **Dataset:** Multivariate smart-grid time series (50,000 records, 15-min resolution)
+- **Anomaly types:** Overload, Transformer fault
+- **Label modes:** ANY, BOTH, and individual fault modes
+- **Windowing:**  
+  - CARLA — fixed-length sliding windows  
+  - TriAD — cycle-based temporal windows  
+- **Metrics:**  
+  - Recall (primary, high miss cost)  
+  - F1-score (balanced performance)  
+  - Precision (monitored false alarms)  
+  - AUC (pointwise scoring support)  
 
-### Before Re-running Any Command
-
-If you intend to rerun **either** the pretext or classification stage:
-
-1. Navigate to the `results` folder
-2. **Delete all subfolders** inside `results`
-
-Failure to clean the `results` directory may lead to incorrect evaluations or execution errors.
-
----
-
-## Modifying Configuration Parameters
-
-Before running experiments with different settings, adjust the configuration files located in the `configs` folder.
-
-### 7. Dataset and Window Configuration
-
-Open:
-
-```
-configs/smartgrid.yml
-```
-
-You may modify:
-
-* `label_mode`
-* `feature_columns`: Comment out features you do not need for training
-* Sliding window parameters: `size` and `stride`
-* Thresholding behavior: `mode` and `value`
+Accuracy is avoided due to severe class imbalance.
 
 ---
 
-### 8. Pretext and Classification Hyperparameters
+## Key Observations
 
-* Open:
-
-  ```
-  configs/pretext/carla_pretext_smartgrid_major.yml
-  ```
-
-  to modify pretext-task hyperparameters.
-
-* Open:
-
-  ```
-  configs/classification/carla_classification_smartgrid_major.yml
-  ```
-
-  to modify classification-stage hyperparameters.
-
-Changes to these files take effect only after re-running the pipeline.
+- CARLA exhibits **strong feature invariance** across feature subsets and label modes.
+- TriAD shows **high sensitivity to feature composition**, particularly under multivariate inputs.
+- Longer temporal windows improve detection of gradual anomalies.
+- Label formulation significantly affects detectability; stricter definitions (e.g., BOTH) are more reliable.
 
 ---
 
-## Notes
-
-* Always ensure the virtual environment is activated before running any CARLA scripts.
-* CUDA/GPU support is required by default.
-* Clean the `results` directory before re-running experiments to ensure reproducibility.
-
----
-
-# 2. Running TriAD (Modified Version)
-
-## 1. Navigate to the TriAD Directory
-
-At the terminal, change into the `TriAD_Modified` folder:
-
-```bash
-cd TriAD_Modified
-```
-
----
-
-## 2. Create and Activate Virtual Environment
-
-Create a Python virtual environment (if not already created):
-
-```bash
-python -m venv venv
-```
-
-Activate the environment:
-
-* **Linux / macOS:**
-
-  ```bash
-  source venv/bin/activate
-  ```
-* **Windows (PowerShell):**
-
-  ```bash
-  .\venv\Scripts\Activate.ps1
-  ```
-* **Windows (CMD):**
-
-  ```bash
-  venv\Scripts\activate
-  ```
-
----
-
-## Pre-run Preparation
-
-### 3. Prepare Metrics File (Before First Run)
-
-Navigate to:
-
-```
-merlin_res/all_metrics.csv
-```
-
-* Delete **all rows** starting with:
-
-  ```
-  any,Voltage
-  ```
-* **Do NOT delete the header row**.
-
-This step prevents duplicated or stale evaluation results.
-
----
-
-## Running the TriAD Pipeline
-
-### 4. Run Feature Selection and Training
-
-From the root of `TriAD_Modified`, execute:
-
-```bash
-py feature_selection.py
-```
-
-Wait for the process to complete fully before proceeding.
-
----
-
-## Cleanup and Re-running
-
-If you intend to **rerun the pipeline**, complete **both steps below before re-execution**.
-
-### 5. Delete Generated Evaluation Images
-
-Navigate to:
-
-```
-eval_demo/
-```
-
-* Delete **all files ending with** `.png`
-
-> This step ensures that system memory is not overburdened by accumulated image files.
-
----
-
-### 6. Reset Metrics File
-
-Reopen:
-
-```
-merlin_res/all_metrics.csv
-```
-
-* Delete all rows starting with:
-
-  ```
-  any,Voltage
-  ```
-* Keep the header row intact.
-
-Failure to reset this file may lead to incorrect or duplicated evaluation results.
-
----
-
-## Modifying Configuration Parameters
-
-Before running experiments with different settings, adjust the configuration files located in the `configs` folder.
-
-### 7. Training Configuration
-
-Open:
-
-```
-configs/triad_train_smartgrid_major
-```
-
-You may modify parameters such as:
-
-* `cycles`
-* `stride_ratio`
-* `alpha`
-
-These parameters control training dynamics and windowing behavior.
-
----
-
-### 8. Dataset and Mode Settings
-
-Open:
-
-```
-configs/grid_settings.py
-```
-
-**Parameter descriptions:**
-
-* **`LABEL`**: Specifies the label mode being targeted.
-* **`TARGET`**: Defines the *maximum number of features* allowed to be combined in a single set.
-* **`MULTIVARIATE`**:
-
-  * `False` → Univariate setting (single signal/channel)
-  * `True` → Multivariate setting (multiple signals/channels processed jointly)
-
-Changes to configuration files take effect only after re-running the pipeline.
-
----
-
-## Notes
-
-* Always ensure the virtual environment is activated before running TriAD scripts.
-* CUDA/GPU support is required by default.
-* Clean `eval_demo` and reset `all_metrics.csv` before rerunning to ensure reproducibility.
-
----
-
-For further details, refer to the code comments or the accompanying dissertation.
+## Limitations
+
+- Dataset diversity is limited.
+- Fully unlabeled industrial settings remain inherently ambiguous.
+- Metric-driven feature selection may penalise high-recall configurations.
