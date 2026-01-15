@@ -6,7 +6,7 @@ This repository contains **modified implementations of the TriAD model** used in
 
 ## Acknowledgement
 
-The implementations provided here using the original **TriAD** codebases have been **modified and extended** for smart-grid harmonic anomaly detection experiments.
+The implementations provided here using the original **TriAD** codebase have been **modified and extended** for smart-grid harmonic anomaly detection experiments.
 
 ---
 
