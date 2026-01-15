@@ -1,4 +1,4 @@
-# Running Instructions for TriAD and CARLA (Modified Versions)
+# Running Instructions for CARLA (Modified Versions)
 
 This repository contains **modified implementations of the CARLA model** used in the accompanying dissertation for smart-grid harmonic anomaly detection. Detailed, pipeline-specific instructions for running **CARLA** should be followed as described in their respective sections.
 
