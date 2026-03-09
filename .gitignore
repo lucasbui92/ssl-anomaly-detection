@@ -5,6 +5,8 @@
 **/.venv/
 **/carla-env/
 
+.gitignore
+
 # VSCode settings
 .vscode/
 
