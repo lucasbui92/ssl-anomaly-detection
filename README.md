@@ -1,7 +1,7 @@
 # Self-Supervised Anomaly Detection for Harmonics-Rich Smart-Grid Time Series: A Design-Centric Comparison of CARLA and TriAD
 
 > **NOTE**  
-> Model-specific setup and execution instructions are provided in the `README.md` file within each model directory (`CARLA_Modified/`, `TriAD_Modified/`).
+> Model-specific setup and execution instructions are provided in the `README.md` file within each model directory (`CARLA_Modified/`, `TriAD_Modified/`). ggg
 
 ## Overview & Methodology
 
